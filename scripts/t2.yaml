@@ -1,0 +1,78 @@
+1 	apiVersion: apps/v1
+2 	kind: Deployment
+3 	metadata:
+4 	  name: azure-vote-back
+5 	spec:
+6 	  replicas: 1
+7 	  selector:
+8 		matchLabels:
+9 		  app: azure-vote-back
+10	  template:
+11		metadata:
+12		  labels:
+13			app: azure-vote-back
+14		spec:
+15		  containers:
+16		  - name: azure-vote-back
+17			image: redis
+18			resources:
+19			  requests:
+20				cpu: 100m
+21				memory: 128Mi
+22			  limits:
+23				cpu: 250m
+24				memory: 256Mi
+25			ports:
+26			- containerPort: 6379
+27			  name: redis
+28	---
+29	apiVersion: v1
+30	kind: Service
+31	metadata:
+32	  name: azure-vote-back
+33	spec:
+34	  ports:
+35	  - port: 6379
+36	  selector:
+37		app: azure-vote-back
+38	---
+39	apiVersion: apps/v1
+40	kind: Deployment
+41	metadata:
+42	  name: azure-vote-front
+43	spec:
+44	  replicas: 1
+45	  selector:
+46		matchLabels:
+47		  app: azure-vote-front
+48	  template:
+49		metadata:
+50		  labels:
+51			app: azure-vote-front
+52		spec:
+53		  containers:
+54		  - name: azure-vote-front
+55			image: microsoft/azure-vote-front:v1
+56			resources:
+57			  requests:
+58				cpu: 100m
+59				memory: 128Mi
+60			  limits:
+61				cpu: 250m
+62				memory: 256Mi
+63			ports:
+64			- containerPort: 80
+65			env:
+66			- name: REDIS
+67			  value: "azure-vote-back"
+68	---
+69	apiVersion: v1
+70	kind: Service
+71	metadata:
+72	  name: azure-vote-front
+73	spec:
+74	  type: LoadBalancer
+75	  ports:
+76	  - port: 80
+77	  selector:
+78		app: azure-vote-front
